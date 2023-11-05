@@ -198,7 +198,7 @@ class BankDatabase:
 
                     # Print withdrawn amount and updated balance
                     #print(f"Withdrawn: R{amount}")
-                    print(f"Current Balance: R{updated_balance}")  # Display updated balance after withdrawal
+                    #print(f"Current Balance: R{updated_balance}")  # Display updated balance after withdrawal
                     return amount
                 else:
                     # Print error message for insufficient balance
@@ -276,55 +276,70 @@ class BankDatabase:
         print(f"Account created successfully! Your account number is: {account_number}")
 
     # Function to handle user actions (deposit, withdrawal, etc.)
-    def handle_user_actions(self, user_data):
-        print(f"Current Balance: R{user_data['balance']}")  # Using named columns
 
+    def handle_user_actions(self, user_data):
+        # Display the user's current balance when they log in
+        print(f"Current Balance: R{user_data['balance']}")
+
+        # Start an infinite loop to handle user actions
         while True:
+            # Display the menu options
             print("\n1. Deposit")
             print("2. Withdraw")
-            print("3. View Balance")
+            print("3. View Balance")  # Option to view balance
             print("4. View Transaction History")
             print("5. Logout")
+
+            # Get the user's choice
             choice = input("Enter your choice: ")
 
+            # Perform actions based on user's choice
             if choice == "1":
+                # Handle deposit functionality
                 deposit_amount = float(input("Enter deposit amount: R"))
                 if deposit_amount > 0:
                     deposited_amount = self.user_deposit(user_data, deposit_amount)
-                    print(f"Deposited: R{deposited_amount}")
+                    if deposited_amount is not None:
+                        user_row = self.cursor.execute("SELECT * FROM users WHERE username=?",
+                                                       (user_data['username'],)).fetchone()
+                        user_data = dict(user_row)
+                        print(f"Deposited: R{deposited_amount}")
+                        print(f"Current Balance: R{user_data['balance']}")  # Display updated balance after deposit
                 else:
                     print("Invalid deposit amount. Please enter a positive value.")
             elif choice == "2":
+                # Handle withdrawal functionality
                 withdrawal_amount = float(input("Enter withdrawal amount: R"))
                 if withdrawal_amount > 0:
                     withdrawn_amount = self.user_withdraw(user_data, withdrawal_amount)
-                    if isinstance(withdrawn_amount, str):
-                        print(withdrawn_amount)  # Display error message if withdrawal fails
-                    else:
+                    if isinstance(withdrawn_amount, float):
+                        user_row = self.cursor.execute("SELECT * FROM users WHERE username=?",
+                                                       (user_data['username'],)).fetchone()
+                        user_data = dict(user_row)
                         print(f"Withdrawn: R{withdrawn_amount}")
+                        print(f"Current Balance: R{user_data['balance']}")  # Display updated balance after withdrawal
+                    else:
+                        print(withdrawn_amount)  # Display error message if withdrawal fails
                 else:
                     print("Invalid withdrawal amount. Please enter a positive value.")
             elif choice == "3":
-                # Calculate the updated balance based on transactions
-                self.cursor.execute("SELECT * FROM transactions WHERE username=?", (user_data[1],))
-                transactions = self.cursor.fetchall()
-
-                deposited_amounts = sum(transaction[3] for transaction in transactions if transaction[2] == 'deposit')
-                withdrawn_amounts = sum(transaction[3] for transaction in transactions if transaction[2] == 'withdraw')
-
-                updated_balance = user_data['balance'] + deposited_amounts - withdrawn_amounts
-                print(f"Current Balance: R{updated_balance}")
+                # Display current balance when the user selects this option
+                print(f"Current Balance: R{user_data['balance']}")
             elif choice == "4":
+                # Handle viewing transaction history
                 self.cursor.execute("SELECT * FROM transactions WHERE username=?", (user_data[1],))
                 transactions = self.cursor.fetchall()
                 print("\nTransaction History:")
                 for transaction in transactions:
                     print(f"Type: {transaction[2]}, Amount: R{transaction[3]}, Time: {transaction[4]}")
             elif choice == "5":
+                # Logout the user and exit the loop
                 print("Logout successful.")
                 break
             else:
+                # Handle invalid choices
                 print("Invalid choice! Please try again.")
+
     # Function to log transactions to transaction_log.txt
     def log_transaction(self, username, transaction_type, amount, balance):
         with open('transaction_log.txt', 'a') as file:
