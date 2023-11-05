@@ -156,7 +156,7 @@ class BankDatabase:
             updated_balance = self.cursor.fetchone()[0]
 
             # Print deposited amount and updated balance
-            print(f"Deposited: R{amount}")
+            #print(f"Deposited: R{amount}")
             print(f"Current Balance: R{updated_balance}")  # Display updated balance after deposit
             return amount
         else:
@@ -277,7 +277,6 @@ class BankDatabase:
 
     # Function to handle user actions (deposit, withdrawal, etc.)
     def handle_user_actions(self, user_data):
-
         print(f"Current Balance: R{user_data['balance']}")  # Using named columns
 
         while True:
@@ -306,7 +305,15 @@ class BankDatabase:
                 else:
                     print("Invalid withdrawal amount. Please enter a positive value.")
             elif choice == "3":
-                print(f"Current Balance: R{user_data[3]}")
+                # Calculate the updated balance based on transactions
+                self.cursor.execute("SELECT * FROM transactions WHERE username=?", (user_data[1],))
+                transactions = self.cursor.fetchall()
+
+                deposited_amounts = sum(transaction[3] for transaction in transactions if transaction[2] == 'deposit')
+                withdrawn_amounts = sum(transaction[3] for transaction in transactions if transaction[2] == 'withdraw')
+
+                updated_balance = user_data['balance'] + deposited_amounts - withdrawn_amounts
+                print(f"Current Balance: R{updated_balance}")
             elif choice == "4":
                 self.cursor.execute("SELECT * FROM transactions WHERE username=?", (user_data[1],))
                 transactions = self.cursor.fetchall()
@@ -318,7 +325,6 @@ class BankDatabase:
                 break
             else:
                 print("Invalid choice! Please try again.")
-
     # Function to log transactions to transaction_log.txt
     def log_transaction(self, username, transaction_type, amount, balance):
         with open('transaction_log.txt', 'a') as file:

@@ -1,2 +1,5 @@
 Username: Mookho, Transaction Type: Withdrawal, Amount: 4500.0, Balance: 791450.0, Time: 2023-11-04 11:53:59.664614
 Username: Mookho, Transaction Type: Withdrawal, Amount: 4500.0, Balance: 786950.0, Time: 2023-11-04 11:56:08.881212
+Username: Thabo, Transaction Type: Deposit, Amount: 12000.0, Balance: 35000.0, Time: 2023-11-05 08:28:48.783881
+Username: Thabo, Transaction Type: Deposit, Amount: 34000.0, Balance: 69000.0, Time: 2023-11-05 08:45:41.341576
+Username: Thabo, Transaction Type: Withdrawal, Amount: 45500.0, Balance: 23500.0, Time: 2023-11-05 08:46:05.064284
